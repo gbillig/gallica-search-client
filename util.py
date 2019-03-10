@@ -34,11 +34,18 @@ month_sub = {
   " decembre ": "-12-",
 }
 
+if False:
+  for ark_id, date in date_hash.items():
+    for month_spelled, month_numerical in month_sub.items():
+      if month_spelled in date:
+        
+        date_hash[ark_id] = date.replace(month_spelled, month_numerical)
+        break
+
+
 for ark_id, date in date_hash.items():
-  for month_spelled, month_numerical in month_sub.items():
-    if month_spelled in date:
-      date_hash[ark_id] = date.replace(month_spelled, month_numerical)
-      break
+  new_date = date[6:10] + '-' + date[3:5] + '-' + date[0:2]
+  date_hash[ark_id] = new_date
 
 
 with open('date_nice.json', 'w', encoding='utf8') as fp:
