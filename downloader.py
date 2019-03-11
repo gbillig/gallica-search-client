@@ -5,7 +5,7 @@ import json
 import os
 import time
 import progressbar
-import datetime
+from datetime import datetime
 
 
 METADATA_BASE_URL = 'https://gallica.bnf.fr/services/Issues?ark=ark:/12148/'
@@ -40,7 +40,7 @@ def adjust_date(date):
   for month_spelled, month_numerical in month_sub.items():
       if month_spelled in date:
         new_date = date.replace(month_spelled, month_numerical)
-          break
+        break
 
   day = new_date[0:2]
   month = new_date[3:5]
@@ -90,19 +90,19 @@ def load_data():
   return ark_id_hash, date_hash
 
 
-def search(seach_text, start_date, end_date):
+def search(search_text, start_date, end_date, date_hash):
   for ark_id, date in date_hash.items():
     parsed_date = datetime.strptime(date, '%Y-%m-%d')
     
     if parsed_date > start_date and parsed_date < end_date:
-      filepath = text_dir + '/' + ark_id = '.txt'
+      filepath = text_dir + '/' + ark_id + '.txt'
 
       with open(filepath, 'r') as f:
         searchlines = f.readlines()
 
       for i, line in enumerate(searchlines):
-          if seach_text in line:
-              print('Found ' + search_text + ' in line ' + str(i) + ' of ' + ark_id ' (' + date + ')')
+          if search_text in line:
+              print('Found ' + search_text + ' in line ' + str(i) + ' of ' + ark_id + ' (' + date + ')')
               print()
               for l in searchlines[i:i+3]: print(l)
               print()
@@ -115,15 +115,20 @@ def main():
     os.mkdir(text_dir)
 
   for ark_id, date in progressbar.progressbar(date_hash.items()):
-    filepath = text_dir + '/' + ark_id = '.txt'
+    filepath = text_dir + '/' + ark_id + '.txt'
     if not os.path.isfile(filepath):
       r = requests.get(RAW_TEXT_BASE_URL + ark_id + '.texteBrut')
       file_text = html2text.html2text(r.text)
       
       with open(text_dir + '/' + ark_id + '.txt', 'w+', encoding='utf8') as f:
         f.write(file_text)
+  
+  search_text = input('Enter search query: ')
+  start_date = datetime.strptime(input('Enter start date (DD-MM-YYYY): '), '%d-%m-%Y')
+  end_date = datetime.strptime(input('Enter end date (DD-MM-YYYY): '), '%d-%m-%Y')
 
-
+  search(search_text, start_date, end_date, date_hash)
+  
 
 if __name__ == "__main__":
   main()
