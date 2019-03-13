@@ -91,22 +91,32 @@ def load_data():
 
 
 def search(search_text, start_date, end_date, date_hash):
-  for ark_id, date in date_hash.items():
-    parsed_date = datetime.strptime(date, '%Y-%m-%d')
-    
-    if parsed_date > start_date and parsed_date < end_date:
-      filepath = text_dir + '/' + ark_id + '.txt'
+  now = datetime.now()
+  output_filepath = search_text + '-' + now.strftime("%Y-%m-%d %H:%M") + '.txt'
+  with open(output_filepath, 'w') as q:
+    for ark_id, date in date_hash.items():
+      parsed_date = datetime.strptime(date, '%Y-%m-%d')
 
-      with open(filepath, 'r') as f:
-        searchlines = f.readlines()
+      if parsed_date > start_date and parsed_date < end_date:
+        filepath = text_dir + '/' + ark_id + '.txt'
 
-      for i, line in enumerate(searchlines):
-          if search_text in line:
-              print('Found ' + search_text + ' in line ' + str(i) + ' of ' + ark_id + ' (' + date + ')')
-              print()
-              for l in searchlines[i:i+3]: print(l)
-              print()
+        with open(filepath, 'r') as f:
+          searchlines = f.readlines()
 
+        print(len(searchlines))
+
+
+        for i, line in enumerate(searchlines):
+            if search_text in line:
+                string1 = 'Found ' + search_text + ' in line ' + str(i) + ' of ' + ark_id + ' (' + date + ')\n'
+                q.write(string1)
+                q.write('AA')
+                print(string1)
+                q.write('Link: ' + RAW_TEXT_BASE_URL + ark_id + '/item.r=' + search_text + '\n')
+                for l in searchlines[i:i+3]: q.write(l)
+                q.write('\n')
+  
+  return
 
 def main():
   ark_id_hash, date_hash = load_data()
