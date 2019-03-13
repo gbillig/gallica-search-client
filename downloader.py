@@ -14,6 +14,7 @@ top_ark_id = 'cb34393339w'
 ark_database_filename = 'ark.json'
 date_database_filename = 'date.json'
 text_dir = './text'
+out_dir = './results'
 
 articles = []
 ark_id_hash = {}
@@ -92,8 +93,8 @@ def load_data():
 
 def search(search_text, start_date, end_date, date_hash):
   now = datetime.now()
-  output_filepath = search_text + '-' + now.strftime("%Y-%m-%d %H:%M") + '.txt'
-  with open(output_filepath, 'w') as q:
+  output_filepath = out_dir + '/' + search_text + '-' + now.strftime("%Y-%m-%d %H:%M") + '.txt'
+  with open(output_filepath, 'w', encoding='utf8') as outfile:
     for ark_id, date in date_hash.items():
       parsed_date = datetime.strptime(date, '%Y-%m-%d')
 
@@ -103,18 +104,12 @@ def search(search_text, start_date, end_date, date_hash):
         with open(filepath, 'r') as f:
           searchlines = f.readlines()
 
-        print(len(searchlines))
-
-
         for i, line in enumerate(searchlines):
             if search_text in line:
-                string1 = 'Found ' + search_text + ' in line ' + str(i) + ' of ' + ark_id + ' (' + date + ')\n'
-                q.write(string1)
-                q.write('AA')
-                print(string1)
-                q.write('Link: ' + RAW_TEXT_BASE_URL + ark_id + '/item.r=' + search_text + '\n')
-                for l in searchlines[i:i+3]: q.write(l)
-                q.write('\n')
+                outfile.write('Found ' + search_text + ' in line ' + str(i) + ' of ' + ark_id + ' (' + date + ')\n')
+                outfile.write(RAW_TEXT_BASE_URL + ark_id + '/item.r=' + search_text + '\n')
+                for l in searchlines[i:i+3]: outfile.write(l)
+                outfile.write('\n')
   
   return
 
@@ -123,6 +118,9 @@ def main():
 
   if not os.path.isdir(text_dir):
     os.mkdir(text_dir)
+
+  if not os.path.isdir(out_dir):
+    os.mkdir(out_dir)
 
   for ark_id, date in progressbar.progressbar(date_hash.items()):
     filepath = text_dir + '/' + ark_id + '.txt'
